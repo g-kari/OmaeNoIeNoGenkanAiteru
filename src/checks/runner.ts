@@ -9,14 +9,19 @@ import { runGraphQLChecks } from "./graphql-checks.js";
 import { runRestChecks } from "./rest-checks.js";
 import { runPackageChecks } from "./package-checks.js";
 import { runActionsChecks } from "./actions-checks.js";
-import { computeScore, getWorstSeverity } from "../utils/severity.js";
+import { computeScore, getWorstSeverity, scoreToGrade } from "../utils/severity.js";
 import { runWithConcurrency } from "../utils/concurrency.js";
+import { loadRepoConfig } from "../config/loader.js";
+import { applyConfig } from "../config/apply.js";
 
 async function auditRepo(
   repo: string,
   _opts: CliOptions,
 ): Promise<RepoAuditResult> {
-  const graphqlData = await fetchGraphQLData(repo);
+  const [graphqlData, config] = await Promise.all([
+    fetchGraphQLData(repo),
+    loadRepoConfig(repo),
+  ]);
 
   const [sa, wp, pvr] = await Promise.all([
     fetchSecurityAnalysis(repo),
@@ -29,20 +34,20 @@ async function auditRepo(
   const packageChecks = await runPackageChecks(repo);
   const actionsChecks = await runActionsChecks(repo);
 
-  const allChecks = [
-    ...graphqlChecks,
-    ...restChecks,
-    ...packageChecks,
-    ...actionsChecks,
-  ];
+  const allChecks = applyConfig(
+    [...graphqlChecks, ...restChecks, ...packageChecks, ...actionsChecks],
+    config,
+  );
 
+  const score = computeScore(allChecks);
   return {
     repo,
     isArchived: graphqlData.isArchived,
     isFork: graphqlData.isFork,
     isPrivate: graphqlData.isPrivate,
     checks: allChecks,
-    score: computeScore(allChecks),
+    score,
+    grade: scoreToGrade(score),
     worstSeverity: getWorstSeverity(allChecks),
   };
 }
@@ -62,6 +67,7 @@ async function auditRepoSafe(
       isPrivate: false,
       checks: [],
       score: 0,
+      grade: "F",
       worstSeverity: null,
       error: message,
     };

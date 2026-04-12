@@ -43,6 +43,7 @@ function makeRepo(overrides?: Partial<RepoAuditResult>): RepoAuditResult {
       },
     ],
     score: 50,
+    grade: "F",
     worstSeverity: "critical",
     ...overrides,
   };
@@ -68,6 +69,7 @@ function makeScanResult(overrides?: Partial<ScanResult>): ScanResult {
           },
         ],
         score: 100,
+        grade: "A",
         worstSeverity: null,
       }),
     ],
@@ -75,6 +77,7 @@ function makeScanResult(overrides?: Partial<ScanResult>): ScanResult {
       passing: 1,
       failing: 1,
       averageScore: 75,
+      averageGrade: "C",
       checkBreakdown: {
         "branch-protection": { passed: 2, failed: 0 },
         "secret-scanning": { passed: 0, failed: 1 },
@@ -309,6 +312,7 @@ describe("formatConsole", () => {
             error: "API rate limit exceeded",
             checks: [],
             score: 0,
+            grade: "F",
             worstSeverity: null,
           }),
         ],

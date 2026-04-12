@@ -1,4 +1,4 @@
-import type { Severity, CheckResult } from "../types.js";
+import type { Severity, CheckResult, Grade } from "../types.js";
 import { SEVERITY_ORDER } from "../types.js";
 
 export function compareSeverity(a: Severity, b: Severity): number {
@@ -21,4 +21,12 @@ export function computeScore(results: CheckResult[]): number {
   if (results.length === 0) return 100;
   const passed = results.filter((r) => r.passed).length;
   return Math.round((passed / results.length) * 100);
+}
+
+export function scoreToGrade(score: number): Grade {
+  if (score >= 90) return "A";
+  if (score >= 80) return "B";
+  if (score >= 70) return "C";
+  if (score >= 60) return "D";
+  return "F";
 }

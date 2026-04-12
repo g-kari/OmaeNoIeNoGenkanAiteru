@@ -1,6 +1,9 @@
 // Severity levels ordered from low to high
 export type Severity = "low" | "medium" | "high" | "critical";
 
+// Letter grade (A-F) based on score
+export type Grade = "A" | "B" | "C" | "D" | "F";
+
 export const SEVERITY_ORDER: Record<Severity, number> = {
   low: 0,
   medium: 1,
@@ -121,6 +124,7 @@ export interface RepoAuditResult {
   isPrivate: boolean;
   checks: CheckResult[];
   score: number;
+  grade: Grade;
   worstSeverity: Severity | null;
   error?: string;
 }
@@ -137,8 +141,17 @@ export interface ScanResult {
     passing: number;
     failing: number;
     averageScore: number;
+    averageGrade: Grade;
     checkBreakdown: Partial<Record<CheckId, { passed: number; failed: number }>>;
   };
+}
+
+// Per-repo config loaded from .aiteru-zo.yml
+export interface AiteruConfig {
+  checks?: Partial<Record<CheckId, {
+    enabled?: boolean;
+    severity?: Severity;
+  }>>;
 }
 
 // CLI options

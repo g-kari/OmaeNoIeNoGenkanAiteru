@@ -5,6 +5,7 @@ import { runChecks } from "./checks/runner.js";
 import { formatConsole } from "./output/console.js";
 import { formatJson } from "./output/json.js";
 import { createIssues } from "./issues/creator.js";
+import { scoreToGrade } from "./utils/severity.js";
 import { SEVERITY_ORDER } from "./types.js";
 import type { ScanResult } from "./types.js";
 
@@ -57,6 +58,7 @@ async function main(): Promise<void> {
       passing,
       failing,
       averageScore,
+      averageGrade: scoreToGrade(Math.round(averageScore)),
       checkBreakdown: {},
     },
   };

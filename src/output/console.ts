@@ -1,4 +1,4 @@
-import type { ScanResult, RepoAuditResult, CheckResult, Severity } from "../types.js";
+import type { ScanResult, RepoAuditResult, CheckResult, Severity, Grade } from "../types.js";
 import { SEVERITY_ORDER } from "../types.js";
 import { getArt, getHeaderArt } from "./ascii-art.js";
 
@@ -17,6 +17,14 @@ const SEVERITY_COLOR: Record<Severity, string> = {
   high: C.yellow,
   medium: C.cyan,
   low: C.gray,
+};
+
+const GRADE_COLOR: Record<Grade, string> = {
+  A: C.green,
+  B: C.green,
+  C: C.yellow,
+  D: C.red,
+  F: C.red,
 };
 
 function write(text: string): void {
@@ -53,7 +61,8 @@ function worstFailedSeverity(checks: CheckResult[]): Severity | null {
 
 function formatRepoBlock(repo: RepoAuditResult): void {
   writeln();
-  writeln(`${C.bold}${repo.repo}${C.reset}`);
+  const gradeColor = GRADE_COLOR[repo.grade];
+  writeln(`${C.bold}${repo.repo}${C.reset}  ${gradeColor}[${repo.grade}]${C.reset} ${repo.score}%`);
   writeln(`${C.gray}${"─".repeat(60)}${C.reset}`);
 
   if (repo.error) {
@@ -97,25 +106,27 @@ function formatRepoBlock(repo: RepoAuditResult): void {
 }
 
 function formatSummaryTable(results: RepoAuditResult[]): void {
-  writeln(`${C.bold}${"─".repeat(60)}${C.reset}`);
-  writeln(`${C.bold}  ${padEnd("リポジトリ", 36)}${padEnd("スコア", 8)}最悪度${C.reset}`);
-  writeln(`${C.gray}${"─".repeat(60)}${C.reset}`);
+  writeln(`${C.bold}${"─".repeat(64)}${C.reset}`);
+  writeln(`${C.bold}  ${padEnd("リポジトリ", 36)}${padEnd("グレード", 10)}最悪度${C.reset}`);
+  writeln(`${C.gray}${"─".repeat(64)}${C.reset}`);
 
   for (const repo of results) {
-    const scoreStr = `${repo.score}%`;
+    const gradeColor = GRADE_COLOR[repo.grade];
+    const gradeStr = `${repo.grade} (${repo.score}%)`;
     const severityStr = repo.worstSeverity ?? "-";
-    const color = repo.worstSeverity ? SEVERITY_COLOR[repo.worstSeverity] : "";
-    const reset = repo.worstSeverity ? C.reset : "";
-    writeln(`  ${padEnd(repo.repo, 36)}${padEnd(scoreStr, 8)}${color}${severityStr}${reset}`);
+    const severityColor = repo.worstSeverity ? SEVERITY_COLOR[repo.worstSeverity] : "";
+    const reset = C.reset;
+    writeln(`  ${padEnd(repo.repo, 36)}${gradeColor}${padEnd(gradeStr, 10)}${reset}${severityColor}${severityStr}${reset}`);
   }
 
-  writeln(`${C.gray}${"─".repeat(60)}${C.reset}`);
+  writeln(`${C.gray}${"─".repeat(64)}${C.reset}`);
 }
 
 function formatStats(summary: ScanResult["summary"]): void {
+  const gradeColor = GRADE_COLOR[summary.averageGrade];
   writeln();
   writeln(`${C.bold}総合統計${C.reset}`);
-  writeln(`  ${C.green}パス: ${summary.passing}${C.reset}  ${C.red}失敗: ${summary.failing}${C.reset}  平均スコア: ${summary.averageScore}%`);
+  writeln(`  ${C.green}パス: ${summary.passing}${C.reset}  ${C.red}失敗: ${summary.failing}${C.reset}  平均グレード: ${gradeColor}${summary.averageGrade}${C.reset} (${Math.round(summary.averageScore)}%)`);
   writeln();
 }
 

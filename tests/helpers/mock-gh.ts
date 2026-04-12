@@ -203,3 +203,42 @@ export function setupExecFileMock() {
   }));
   return mockExecFile;
 }
+
+/**
+ * child_process.execFile のモック実装を生成するファクトリー
+ * exitCode: 0 (デフォルト) または 1 以上でエラー
+ * stdout: 成功時のJSONレスポンス
+ * stderr: エラー時のメッセージ
+ */
+export function createMockExecFile({
+  exitCode = 0,
+  stdout = "",
+  stderr = "",
+}: {
+  exitCode?: number;
+  stdout?: string;
+  stderr?: string;
+}) {
+  // gh.ts は execFile(file, args, callback) と呼ぶ（options なし）
+  // そのため callback は3番目の引数
+  type Callback = (err: Error | null, stdout: string, stderr: string) => void;
+  return (
+    _file: unknown,
+    _args: unknown,
+    callbackOrOpts: Callback | unknown,
+    maybeCallback?: Callback,
+  ) => {
+    const callback = (typeof callbackOrOpts === "function"
+      ? callbackOrOpts
+      : maybeCallback) as Callback;
+    if (exitCode !== 0) {
+      const err = Object.assign(new Error(stderr || "gh CLI error"), {
+        code: exitCode,
+        stderr,
+      });
+      callback(err, "", stderr);
+    } else {
+      callback(null, stdout, "");
+    }
+  };
+}
