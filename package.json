@@ -1,5 +1,5 @@
 {
-  "name": "genkan",
+  "name": "aiteru-zo",
   "version": "0.1.0",
   "description": "omae no ie no genkan aiteru zo - Audit GitHub repos for missing security configurations",
   "keywords": [
@@ -14,7 +14,7 @@
   "license": "MIT",
   "author": "g-kari",
   "bin": {
-    "genkan": "./bin/cli.js"
+    "aiteru-zo": "./bin/cli.js"
   },
   "files": [
     "bin/",

@@ -1,8 +1,8 @@
-# CLAUDE.md - genkan プロジェクト
+# CLAUDE.md - aiteru-zo プロジェクト
 
 ## 概要
 
-`genkan` は GitHub リポジトリのセキュリティ設定を監査する npx CLI ツール。\
+`aiteru-zo` は GitHub リポジトリのセキュリティ設定を監査する npx CLI ツール。\
 `gh` CLI (child_process) を使って GitHub API にアクセスする。
 
 ## 技術スタック

@@ -1,4 +1,4 @@
-# genkan - お前の家の玄関開いてるぞ
+# aiteru-zo - お前の家の玄関開いてるぞ
 
 GitHub リポジトリのセキュリティ設定を監査する npx CLI。\
 サプライチェーン攻撃対策として最低限の設定が漏れていないかチェックし、\
@@ -17,14 +17,14 @@ GitHub リポジトリのセキュリティ設定を監査する npx CLI。\
 ## インストール不要で使う
 
 ```bash
-npx genkan --repo owner/repo
+npx aiteru-zo --repo owner/repo
 ```
 
 ## インストールして使う
 
 ```bash
-npm install -g genkan
-genkan --repo owner/repo
+npm install -g aiteru-zo
+aiteru-zo --repo owner/repo
 ```
 
 ## 前提条件
@@ -39,7 +39,7 @@ gh auth login
 ## 使い方
 
 ```
-Usage: genkan [options]
+Usage: aiteru-zo [options]
 
 Options:
   --org <name>          組織のリポを全スキャン
@@ -60,25 +60,25 @@ Options:
 
 ```bash
 # 単一リポをチェック
-genkan --repo g-kari/my-app
+aiteru-zo --repo g-kari/my-app
 
 # 組織全体をスキャン
-genkan --org my-org
+aiteru-zo --org my-org
 
 # ユーザーの全リポをスキャン
-genkan --user g-kari
+aiteru-zo --user g-kari
 
 # JSON出力
-genkan --repo owner/repo --format json
+aiteru-zo --repo owner/repo --format json
 
 # critical/high のみ表示
-genkan --org my-org --severity high
+aiteru-zo --org my-org --severity high
 
 # 問題のあるリポに自動でIssue作成
-genkan --org my-org --create-issues
+aiteru-zo --org my-org --create-issues
 
 # Issue作成のプレビュー（実際には作成しない）
-genkan --org my-org --create-issues --dry-run
+aiteru-zo --org my-org --create-issues --dry-run
 ```
 
 ## チェック項目 (21項目)
@@ -157,7 +157,7 @@ SUMMARY
 ### JSON出力
 
 ```bash
-genkan --repo owner/repo --format json | jq .
+aiteru-zo --repo owner/repo --format json | jq .
 ```
 
 ```json
@@ -199,8 +199,8 @@ genkan --repo owner/repo --format json | jq .
 ### GitHub Actions
 
 ```yaml
-- name: Run genkan security audit
-  run: npx genkan --org ${{ github.repository_owner }} --severity high --format json > audit.json
+- name: Run aiteru-zo security audit
+  run: npx aiteru-zo --org ${{ github.repository_owner }} --severity high --format json > audit.json
 
 - name: Check audit results
   run: |
