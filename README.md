@@ -219,27 +219,21 @@ genkan --repo owner/repo --format json | jq .
 
 ## アーキテクチャ
 
-```
-CLI args (commander)
-    |
-    v
-repo-lister.ts ─── GraphQLページネーション ──> List<owner/repo>
-    |
-    v
-Check Runner (並列5リポ)
-    |---> graphql.ts: 20リポ/バッチ
-    |---> rest.ts: 3コール/リポ
-    |---> package-checks.ts: Contents API
-    |---> actions-checks.ts: Contents API + YAML parse
-    |
-    v
-RepoAuditResult[] -> 重要度フィルター -> ScanResult
-    |
-    v
-Output (console w/ ASCII art / JSON)
-    |
-    v
-stdout + exit code
+```mermaid
+flowchart TD
+    A["CLI args (commander)"] --> B["repo-lister.ts\nGraphQL ページネーション"]
+    B --> C["Check Runner\n並列 5 リポ"]
+    C --> D["graphql.ts\n20 リポ/バッチ"]
+    C --> E["rest.ts\n3 コール/リポ"]
+    C --> F["package-checks.ts\nContents API"]
+    C --> G["actions-checks.ts\nContents API + YAML parse"]
+    D --> H["RepoAuditResult[]"]
+    E --> H
+    F --> H
+    G --> H
+    H --> I["重要度フィルター → ScanResult"]
+    I --> J["Output\nconsole w/ ASCII art / JSON"]
+    J --> K["stdout + exit code"]
 ```
 
 ## ライセンス
