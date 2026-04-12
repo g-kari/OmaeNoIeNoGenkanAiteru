@@ -1,0 +1,49 @@
+{
+  "name": "genkan",
+  "version": "0.1.0",
+  "description": "omae no ie no genkan aiteru zo - Audit GitHub repos for missing security configurations",
+  "keywords": [
+    "github",
+    "security",
+    "audit",
+    "supply-chain",
+    "cli",
+    "dependabot",
+    "branch-protection"
+  ],
+  "license": "MIT",
+  "author": "g-kari",
+  "bin": {
+    "genkan": "./bin/cli.js"
+  },
+  "files": [
+    "bin/",
+    "dist/"
+  ],
+  "type": "module",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "commander": "^13.0.0",
+    "yaml": "^2.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@vitest/coverage-v8": "^3.0.0",
+    "tsup": "^8.5.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
