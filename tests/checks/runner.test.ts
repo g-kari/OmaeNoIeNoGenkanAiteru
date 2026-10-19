@@ -22,6 +22,9 @@ vi.mock("../../src/checks/package-checks.js", () => ({
 vi.mock("../../src/checks/actions-checks.js", () => ({
   runActionsChecks: vi.fn(),
 }));
+vi.mock("../../src/config/loader.js", () => ({
+  loadRepoConfig: vi.fn(),
+}));
 
 import { runChecks } from "../../src/checks/runner.js";
 import { fetchGraphQLData } from "../../src/github/graphql.js";
@@ -30,6 +33,7 @@ import { runGraphQLChecks } from "../../src/checks/graphql-checks.js";
 import { runRestChecks } from "../../src/checks/rest-checks.js";
 import { runPackageChecks } from "../../src/checks/package-checks.js";
 import { runActionsChecks } from "../../src/checks/actions-checks.js";
+import { loadRepoConfig } from "../../src/config/loader.js";
 
 const mockedFetchGraphQLData = vi.mocked(fetchGraphQLData);
 const mockedFetchSecurityAnalysis = vi.mocked(fetchSecurityAnalysis);
@@ -39,6 +43,7 @@ const mockedRunGraphQLChecks = vi.mocked(runGraphQLChecks);
 const mockedRunRestChecks = vi.mocked(runRestChecks);
 const mockedRunPackageChecks = vi.mocked(runPackageChecks);
 const mockedRunActionsChecks = vi.mocked(runActionsChecks);
+const mockedLoadRepoConfig = vi.mocked(loadRepoConfig);
 
 const defaultOpts: CliOptions = {
   format: "console",
@@ -84,6 +89,7 @@ beforeEach(() => {
   mockedRunRestChecks.mockReturnValue([]);
   mockedRunPackageChecks.mockResolvedValue([]);
   mockedRunActionsChecks.mockResolvedValue([]);
+  mockedLoadRepoConfig.mockResolvedValue({});
 });
 
 describe("runChecks", () => {
@@ -105,6 +111,7 @@ describe("runChecks", () => {
     expect(mockedRunRestChecks).toHaveBeenCalled();
     expect(mockedRunPackageChecks).toHaveBeenCalledWith("owner/repo");
     expect(mockedRunActionsChecks).toHaveBeenCalledWith("owner/repo");
+    expect(mockedLoadRepoConfig).toHaveBeenCalledWith("owner/repo");
   });
 
   it("全チェックがpassの場合、worstSeverityはnullになる", async () => {
