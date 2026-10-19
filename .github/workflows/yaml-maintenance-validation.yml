@@ -1,0 +1,64 @@
+name: YAML maintenance validation
+
+on:
+  push:
+    branches:
+      - fix/yaml-2.9.1-compatibility-20261018
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    if: github.repository == 'g-kari/OmaeNoIeNoGenkanAiteru'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out the exact branch head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.19.0'
+          package-manager-cache: false
+
+      - name: Install the frozen lockfile without lifecycle scripts
+        run: |
+          mkdir -p "$RUNNER_TEMP/yaml-validation-home"
+          : > "$RUNNER_TEMP/yaml-validation-home/empty-global-npmrc"
+          env -i PATH="$PATH" HOME="$RUNNER_TEMP/yaml-validation-home" CI=true \
+            npm_config_userconfig=/dev/null \
+            npm_config_globalconfig="$RUNNER_TEMP/yaml-validation-home/empty-global-npmrc" \
+            npm_config_cache="$RUNNER_TEMP/yaml-validation-npm-cache" \
+            npm ci --ignore-scripts --no-audit --no-fund --registry=https://registry.npmjs.org
+
+      - name: Run synthetic unit tests, lint/typecheck, and build with a GitHub guard
+        # Application GitHub transport is execFile("gh", ...), resolved through PATH.
+        # This guard blocks missed mocks and fails CI even when their errors are caught.
+        # lint and typecheck are both tsc --noEmit, so run that check only once.
+        run: |
+          guard="$RUNNER_TEMP/yaml-validation-guard"
+          mkdir -p "$guard"
+          cat > "$guard/gh" <<'SH'
+          #!/bin/sh
+          printf '%s\n' unexpected-gh >> "${0%/*}/unexpected-gh.log"
+          exit 98
+          SH
+          chmod 700 "$guard/gh"
+          : > "$guard/unexpected-gh.log"
+          env -i PATH="$guard:$PATH" HOME="$RUNNER_TEMP/yaml-validation-home" CI=true \
+            GH_CONFIG_DIR="$RUNNER_TEMP/yaml-validation-home/gh" \
+            XDG_CONFIG_HOME="$RUNNER_TEMP/yaml-validation-home/config" \
+            npm_config_userconfig=/dev/null \
+            npm_config_globalconfig="$RUNNER_TEMP/yaml-validation-home/empty-global-npmrc" \
+            npm_config_cache="$RUNNER_TEMP/yaml-validation-npm-cache" \
+            sh -ec 'npm test; npm run lint; npm run build'
+          test ! -s "$guard/unexpected-gh.log"
