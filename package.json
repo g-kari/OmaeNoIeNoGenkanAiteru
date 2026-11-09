@@ -33,7 +33,7 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "commander": "^13.0.0",
+    "commander": "^15.0.0",
     "yaml": "^2.9.1"
   },
   "devDependencies": {
